@@ -4,6 +4,8 @@ using System.Net.Http.Formatting;
 using System.Security.Cryptography.Xml;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using MongoDB.Driver;
+using MongoDB.Bson;
 
 namespace MyApp
 {
@@ -12,12 +14,39 @@ namespace MyApp
        
         static void Main(string[] args)
         {
-            
+            var db = new Database();
+            /*
+            await db.recipes.InsertOneAsync(new MongoDB.Bson.BsonDocument{
+                {"Author","Jim"},
+                {"Name", "Tiramisu"},
+                {"Tags", new BsonArray{"italian", "dessert"}},
+                {"Rating", 50}
+            });
+            */
+            /*
+            BsonDocument filter = new BsonDocument(){
+                {"Tags", "italian"}
+            };
+            var italianRecipes = await db.recipes.Find(filter).ToListAsync();   
+            foreach(var recipe in italianRecipes){
+                Console.WriteLine(recipe.ToString());
+            }
+            */
             var builder = WebApplication.CreateBuilder(args);
             var app = builder.Build();
             int Number = 0;
             var ProductApi = new MyApi();
-            // TODO: cache api lookup for products, separate into function
+
+            // TODO add a GUI frontend, with a name and author field, that sends this POST request
+            app.MapPost("/recipes", async (string name, string author) => {
+                var insertRecipe = new BsonDocument() {
+                    {"Name", name},
+                    {"Author", author}
+                };
+                await db.recipes.InsertOneAsync(insertRecipe);
+            });
+
+            // TODO add a GET recipes endpoint, that lists all the recipes
             app.MapGet("/product", async () => {
                 
                 JsonElement productArray = await ProductApi.GetProductArray();
@@ -37,7 +66,7 @@ namespace MyApp
                 
                 return result.ToString();
             });
-            app.MapGet("/number", async () => $"Number: {Number}");
+            app.MapGet("/number", () => $"Number: {Number}");
             app.MapPut("/number", async (int number) => {
                 await Task.Delay(10000);
                 Number = number;

@@ -1,20 +1,21 @@
-using StackExchange.Redis;
+using MongoDB.Driver;
+using MongoDB.Bson;
 using System;
 using System.Threading.Tasks;
 
-namespace ReferenceConsoleRedisApp
+namespace MyApp
 {
-    class Program
+    class Database
     {
-        static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(
-            new ConfigurationOptions{
-                EndPoints = { "redis-12000.cluster.redis.com:12000" },                
-            });
-        static async Task Main(string[] args)
+        MongoClient client;
+        IMongoDatabase database;
+        public IMongoCollection<BsonDocument> recipes;
+
+        public Database()
         {
-            var db = redis.GetDatabase();
-            var pong = await db.PingAsync();
-            Console.WriteLine(pong);
+            client = new MongoClient("mongodb://127.0.0.1:27017");
+            database = client.GetDatabase("recipe_db");
+            recipes = database.GetCollection<BsonDocument>("recipes");
         }
     }
 }

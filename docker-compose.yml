@@ -1,0 +1,11 @@
+version: '3.3'
+
+services:
+
+  recipe_db:
+    image: mongo
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+    volumes:
+      - /var/recipe_db:/data/db
