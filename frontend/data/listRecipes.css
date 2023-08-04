@@ -1,0 +1,17 @@
+.recipe .attribute {
+    display:flex;
+    padding: 5px;
+    flex-flow: row nowrap;
+}
+
+.recipe .attribute .label {
+    padding-right: 4px; 
+    font-weight: bold;
+}
+
+.recipe {
+    display:flex;
+    border:5px solid darkblue;
+    flex-flow: column wrap;
+    border-radius: 4px;
+}

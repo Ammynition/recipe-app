@@ -6,6 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using MongoDB.Driver;
 using MongoDB.Bson;
+using Newtonsoft.Json;
+using System.Windows.Forms;
 
 namespace MyApp
 {
@@ -33,20 +35,70 @@ namespace MyApp
             }
             */
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    builder =>
+                    {
+                        builder.WithOrigins("https://localhost", "http://localhost")
+                                            .AllowAnyHeader()
+                                            .AllowAnyMethod();
+                    });
+            });
+
+            
             var app = builder.Build();
+            app.UseCors();
+            
             int Number = 0;
             var ProductApi = new MyApi();
-
+/*
             // TODO add a GUI frontend, with a name and author field, that sends this POST request
-            app.MapPost("/recipes", async (string name, string author) => {
+            Form mainForm = new Form();
+            Label lblFirst = new Label();
+            mainForm.Width = 400;
+            mainForm.Height = 400; 
+            lblFirst.Text = "Name:";
+            lblFirst.Location = new Point(200,200);
+            mainForm.Controls.Add(lblFirst);
+            Application.Run(mainForm);
+*/
+            app.MapPost("/recipe", async (string name, string author, string tags) => {
                 var insertRecipe = new BsonDocument() {
                     {"Name", name},
-                    {"Author", author}
+                    {"Author", author},
+                    {"Tags", tags}
                 };
                 await db.recipes.InsertOneAsync(insertRecipe);
             });
 
-            // TODO add a GET recipes endpoint, that lists all the recipes
+            // DONE? TODO add a GET recipes endpoint, that lists all the recipes
+            app.MapGet("/recipes", async (string filter) => {
+                if (filter != "null") {
+                    Console.WriteLine(filter.GetType());
+                    Console.WriteLine("a" + filter + "c");
+                    var bsonFilter = Builders<BsonDocument>.Filter.Eq("Tags", filter);
+                    var allRecipes = await db.recipes.Find(bsonFilter).ToListAsync();
+                    return allRecipes.ToJson(new MongoDB.Bson.IO.JsonWriterSettings() {OutputMode = MongoDB.Bson.IO.JsonOutputMode.Strict});
+                }
+                else {
+                    Console.WriteLine("No Filter");
+                    var allRecipes = await db.recipes.Find(document => true).ToListAsync();
+                    return allRecipes.ToJson(new MongoDB.Bson.IO.JsonWriterSettings() {OutputMode = MongoDB.Bson.IO.JsonOutputMode.Strict});
+                }
+                /*
+                //var result = new BsonDocument();
+                var results = new JsonArray();
+                foreach(var recipe in allRecipes)
+                {
+                    //result.Merge(recipe);
+                    results.Add(JsonDocument.Parse(recipe.ToJson()));
+                }
+                //var recipeObj = BsonTypeMapper.MapToDotNetValue(result);
+                //JsonConvert.SerializeObject(recipeObj);
+                return results;
+                */
+            });
             app.MapGet("/product", async () => {
                 
                 JsonElement productArray = await ProductApi.GetProductArray();

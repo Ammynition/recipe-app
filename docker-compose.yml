@@ -1,11 +1,31 @@
 version: '3.3'
 
 services:
-
   recipe_db:
     image: mongo
+    container_name: recipe_db
     restart: unless-stopped
     ports:
       - 27017:27017
     volumes:
-      - /var/recipe_db:/data/db
+
+      - recipe_db:/data/db
+
+  frontend:
+    image: nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - ./frontend/config:/etc/nginx/conf.d
+      - ./frontend/data:/usr/share/nginx/html
+  
+  backend:
+    build:
+      context: backend
+      dockerfile: dockerfile
+    ports:
+      - 8080:80
+
+volumes:
+  recipe_db:
