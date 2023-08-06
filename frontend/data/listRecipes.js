@@ -2,20 +2,35 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const recipesList = document.getElementById("recipes-list");
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const filter = urlParams.get("filter");
-
-    const response = await fetch(`http://localhost:5000/recipes?filter=${filter}`, {
-        method: 'GET',
+    const httpResponse = await fetch(`http://localhost:8080/recipes`, {
+        method: 'POST',
         headers: {
-            'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-    //body: JSON.stringify({ "id": 78912 })
+        body: JSON.stringify({
+            name: "name",
+            author: "author",
+            tags: ["a"],
+            ingredients: [{quantity: 1, unit: "a", name: "b"}],
+            body: "a",
+        }),
     });
 
-    const allRecipes = await response.json();
-    for (let recipe of allRecipes) {
+    const jsonResponse = await httpResponse.json();
+    
+    for (let recipe of jsonResponse.recipes) {
+        const ingredients = [];
+        if (recipe.Ingredients) {
+            for (let ingredient of recipe.Ingredients) {
+                ingredients.push(`
+                    <div>
+                        ${ingredient.quantity} 
+                        ${ingredient.unit}
+                        ${ingredient.name}
+                    </div>
+                `);
+            }
+        }
         const div = document.createElement("div");
         div.className = "recipe";
         div.innerHTML = `
@@ -31,6 +46,14 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                 <div class="label">Tags</div>
                 <div class="value">${recipe.Tags}</div>
             </div>
+            <div class="attribute ingredients">
+                <div class="label">Ingredients</div>
+                ${ingredients.join("")}
+            </div>
+            <div class="attribute body">
+                <div class="label">Instructions</div>
+                <div class="value"><p>${recipe.Body.split("\n").join("</p><p>")}</p></div>
+            </div>
         `;
         recipesList.appendChild(div);
     }
@@ -38,4 +61,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     console.log("Got recipes!");
 });
 
-//TODO display tags from create recipe
+//TODO: add bar to both pages CREATE and RECIPES
+//TODO: add a search bar to filter out recipes
+//make it a fuzzy search 
+//e.g. "Ammy" for author but full name is "Ammy M.", still return Ammy
