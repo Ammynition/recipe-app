@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
         console.log(ingredients);
 
-        const response = await fetch(`http://localhost:8080/recipe`, {
+        const response = await fetch(`http://localhost:8080/create-recipe`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -52,5 +52,3 @@ document.addEventListener("DOMContentLoaded", (event) => {
         document.querySelector(".container.ingredients").appendChild(ingredient);
     });
 });
-
-//TODO: Add tags e.g. vegetarian/indian/etc 

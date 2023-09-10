@@ -1,0 +1,33 @@
+.recipe .attribute {
+    display:flex;
+    padding: 5px;
+    flex-flow: row nowrap;
+}
+
+.recipe .attribute.ingredients, .recipe .attribute.body {
+    flex-flow: column nowrap;
+}
+
+.recipe .attribute .label {
+    padding-right: 4px; 
+    font-weight: bold;
+}
+
+.recipe {
+    display:flex;
+    border:5px solid darkblue;
+    flex-flow: column wrap;
+    border-radius: 4px;
+}
+
+#recipes-list {
+    display:flex;
+    flex-flow: column wrap;
+    align-items: stretch;
+}
+
+body {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+}

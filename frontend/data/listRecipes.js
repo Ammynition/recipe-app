@@ -1,18 +1,23 @@
 document.addEventListener("DOMContentLoaded", async (event) => {
 
-    const recipesList = document.getElementById("recipes-list");
+    document.querySelector("button.search").addEventListener("click", async (event) =>{
+        await listRecipes();
+    });
+        
+    console.log("Got recipes!");
+});
 
+async function listRecipes(){
+    const recipesList = document.getElementById("recipes-list");
+    //emptying element so page is clear when new search happens
+    recipesList.innerHTML = "";
     const httpResponse = await fetch(`http://localhost:8080/recipes`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            name: "name",
-            author: "author",
-            tags: ["a"],
-            ingredients: [{quantity: 1, unit: "a", name: "b"}],
-            body: "a",
+            query: document.querySelector("#searchRecipes").value,
         }),
     });
 
@@ -50,18 +55,10 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                 <div class="label">Ingredients</div>
                 ${ingredients.join("")}
             </div>
-            <div class="attribute body">
-                <div class="label">Instructions</div>
-                <div class="value"><p>${recipe.Body.split("\n").join("</p><p>")}</p></div>
-            </div>
         `;
+        div.addEventListener("click", async (event) =>{
+            window.location.href = "/viewRecipe.html?recipe=" + recipe.id;
+        });
         recipesList.appendChild(div);
     }
-
-    console.log("Got recipes!");
-});
-
-//TODO: add bar to both pages CREATE and RECIPES
-//TODO: add a search bar to filter out recipes
-//make it a fuzzy search 
-//e.g. "Ammy" for author but full name is "Ammy M.", still return Ammy
+}
